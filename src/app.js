@@ -7,6 +7,7 @@ const errorHandlerMiddleware = require('./middleware/errorHandler.middleware');
 
 const authRoutes = require('./routes/auth.routes');
 const profileRoutes = require('./routes/profile.routes');
+const storageRoutes = require('./routes/storage.routes');
 const openapiSpec = require('./docs/swagger');
 
 const app = express();
@@ -27,6 +28,7 @@ app.use('/docs', swaggerUi.serve, swaggerUi.setup(openapiSpec));
 // Register router buckets
 app.use('/', authRoutes);
 app.use('/', profileRoutes);
+app.use('/', storageRoutes);
 
 // Fallback 404 handler
 app.use((req, res) => {

@@ -9,6 +9,7 @@ const openapiSpec = {
     { name: 'auth', description: 'Supabase User Authentication endpoints' },
     { name: 'admin-auth', description: 'Supabase Admin Authentication endpoints' },
     { name: 'profile', description: 'User profile CRUD endpoints' },
+    { name: 'storage', description: 'Supabase Storage endpoints' },
     { name: 'health', description: 'Health check endpoints' },
   ],
   paths: {
@@ -323,6 +324,60 @@ const openapiSpec = {
         summary: 'Delete profile',
         parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
         responses: { 200: { description: 'Profile deleted' } },
+      },
+    },
+    '/storage/upload': {
+      post: {
+        tags: ['storage'],
+        summary: 'Upload file to Supabase storage bucket',
+        description: 'Accepts multipart/form-data with file field and uploads to Supabase storage bucket.',
+        requestBody: {
+          required: true,
+          content: {
+            'multipart/form-data': {
+              schema: {
+                type: 'object',
+                properties: {
+                  file: { type: 'string', format: 'binary', description: 'File to upload' },
+                  bucket: { type: 'string', description: 'Optional target bucket name' },
+                  path: { type: 'string', description: 'Optional custom destination path in bucket' },
+                },
+                required: ['file'],
+              },
+            },
+          },
+        },
+        responses: {
+          201: { description: 'File uploaded successfully' },
+          400: { description: 'Invalid upload request or missing file' },
+        },
+      },
+    },
+    '/storage/presign-url': {
+      post: {
+        tags: ['storage'],
+        summary: 'Generate presigned URL for viewing a stored object',
+        description: 'Generates a temporary signed URL for a file URL or storage object path.',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  file_url: { type: 'string', example: 'https://xxx.supabase.co/storage/v1/object/public/penguin-storage/uploads/file.png' },
+                  bucket: { type: 'string', example: 'penguin-storage' },
+                  expires_in: { type: 'integer', example: 3600 },
+                },
+                required: ['file_url'],
+              },
+            },
+          },
+        },
+        responses: {
+          200: { description: 'Presigned URL generated' },
+          400: { description: 'Invalid parameters or missing file_url' },
+        },
       },
     },
   },
