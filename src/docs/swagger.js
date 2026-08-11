@@ -12,6 +12,11 @@ const openapiSpec = {
     { name: 'storage', description: 'Supabase Storage endpoints' },
     { name: 'health', description: 'Health check endpoints' },
   ],
+  security: [
+    {
+      bearerAuth: [],
+    },
+  ],
   paths: {
     '/health': {
       get: {

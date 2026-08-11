@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const uploadMiddleware = require('../middleware/upload.middleware');
 const storageController = require('../controllers/storage.controller');
+const { authenticateToken } = require('../middleware/auth.middleware');
+
+router.use(authenticateToken);
 
 // Upload endpoint accepting multipart/form-data with 'file' field
 router.post('/storage/upload', uploadMiddleware.single('file'), storageController.uploadFile);
