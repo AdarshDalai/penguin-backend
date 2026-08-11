@@ -1,0 +1,24 @@
+/**
+ * Request validation schemas for Profile endpoints.
+ */
+
+function validateCreateProfileRequest(body) {
+  const { id } = body || {};
+  if (!id) {
+    return { valid: false, message: 'profile id (user id) is required' };
+  }
+  return { valid: true };
+}
+
+function validateProfileIdParam(params) {
+  const { id } = params || {};
+  if (!id) {
+    return { valid: false, message: 'profile id is required' };
+  }
+  return { valid: true };
+}
+
+module.exports = {
+  validateCreateProfileRequest,
+  validateProfileIdParam,
+};
