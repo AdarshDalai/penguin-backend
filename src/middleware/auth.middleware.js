@@ -38,6 +38,31 @@ async function authenticateToken(req, res, next) {
   }
 }
 
+/**
+ * Authorization middleware ensuring the authenticated user possesses admin privileges.
+ */
+function requireAdmin(req, res, next) {
+  if (!req.user) {
+    return res.status(HTTP_STATUS.UNAUTHORIZED).json(
+      errorResponse('Authentication required')
+    );
+  }
+
+  const isSuperAdmin = req.user.is_super_admin === true;
+  const appMetaData = req.user.app_metadata || {};
+  const roles = appMetaData.roles || [];
+  const isAdminRole = roles.includes('admin') || appMetaData.is_admin === true;
+
+  if (!isSuperAdmin && !isAdminRole) {
+    return res.status(HTTP_STATUS.FORBIDDEN).json(
+      errorResponse('Access denied: Admin privileges required')
+    );
+  }
+
+  next();
+}
+
 module.exports = {
   authenticateToken,
+  requireAdmin,
 };

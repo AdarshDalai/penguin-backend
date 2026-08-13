@@ -9,7 +9,8 @@
     "migrate": "node src/core/config/migrations.js",
     "migrate:generate": "npx drizzle-kit generate",
     "migrate:push": "npx drizzle-kit push",
-    "studio": "npx drizzle-kit studio"
+    "studio": "npx drizzle-kit studio",
+    "make-admin": "node scripts/make-admin.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.48.1",
