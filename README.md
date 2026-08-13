@@ -84,3 +84,20 @@ sh script.sh
 - Server: `http://127.0.0.1:8000`
 - Swagger UI: `http://127.0.0.1:8000/docs`
 - Health check: `http://127.0.0.1:8000/health`
+
+## Deploy to Render
+
+This project includes a ready-to-use [`render.yaml`](file:///Users/adarshkumardalai/Cloudsbay/penguin-backend/render.yaml) Blueprint file.
+
+### Option A: Automatic Blueprint Deployment
+1. Connect your repository to **Render**.
+2. Select **Blueprints** and choose your repository.
+3. Render will read `render.yaml` automatically.
+4. Fill in the required environment variables (`DB_HOST`, `DB_USER`, `DB_PASSWORD`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`) in the Render Dashboard.
+
+### Option B: Manual Web Service Setup
+- **Environment**: Node
+- **Build Command**: `npm install`
+- **Start Command**: `npm start`
+- **Health Check Path**: `/health`
+

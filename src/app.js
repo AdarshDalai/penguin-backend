@@ -22,6 +22,16 @@ app.get('/openapi.json', (req, res) => {
   res.send(openapiSpec);
 });
 
+// Health check endpoint for Render monitoring
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    service: 'penguin-backend',
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Swagger UI route
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(openapiSpec));
 
