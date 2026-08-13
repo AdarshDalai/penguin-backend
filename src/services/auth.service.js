@@ -1,4 +1,4 @@
-const { supabase, createScopedClient } = require('../core/config/supabase');
+const { supabase, supabaseAdmin, createScopedClient } = require('../core/config/supabase');
 
 /**
  * Auth Service - ONLY contains raw Supabase database/API calls.
@@ -56,23 +56,23 @@ async function reauthenticateUser(token) {
 }
 
 async function adminListUsers(options) {
-  return await supabase.auth.admin.listUsers(options);
+  return await supabaseAdmin.auth.admin.listUsers(options);
 }
 
 async function adminGetUserById(id) {
-  return await supabase.auth.admin.getUserById(id);
+  return await supabaseAdmin.auth.admin.getUserById(id);
 }
 
 async function adminCreateUser(attributes) {
-  return await supabase.auth.admin.createUser(attributes);
+  return await supabaseAdmin.auth.admin.createUser(attributes);
 }
 
 async function adminUpdateUserById(id, attributes) {
-  return await supabase.auth.admin.updateUserById(id, attributes);
+  return await supabaseAdmin.auth.admin.updateUserById(id, attributes);
 }
 
 async function adminDeleteUserById(id) {
-  return await supabase.auth.admin.deleteUser(id);
+  return await supabaseAdmin.auth.admin.deleteUser(id);
 }
 
 module.exports = {

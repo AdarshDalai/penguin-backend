@@ -19,6 +19,7 @@ if (!SUPABASE_URL && DB_HOST.includes('supabase.co')) {
 }
 
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || '';
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 const SUPABASE_STORAGE_BUCKET = process.env.SUPABASE_STORAGE_BUCKET || 'penguin-storage';
 
 module.exports = {
@@ -32,5 +33,6 @@ module.exports = {
   JWT_SECRET,
   SUPABASE_URL,
   SUPABASE_ANON_KEY,
+  SUPABASE_SERVICE_ROLE_KEY,
   SUPABASE_STORAGE_BUCKET,
 };
