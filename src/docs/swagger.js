@@ -257,34 +257,82 @@ const openapiSpec = {
       get: {
         tags: ['admin-auth'],
         summary: 'Admin: List users',
-        description: 'Lists all registered users (Admin/Service Role).',
+        description: 'Lists all registered users with pagination options (page, perPage).',
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          { name: 'page', in: 'query', required: false, schema: { type: 'integer', default: 1 }, description: 'Page number' },
+          { name: 'perPage', in: 'query', required: false, schema: { type: 'integer', default: 50 }, description: 'Number of items per page' },
+        ],
         responses: { 200: { description: 'List of users' } },
       },
       post: {
         tags: ['admin-auth'],
         summary: 'Admin: Create user',
-        description: 'Creates a user via admin API.',
-        responses: { 201: { description: 'User created' } },
+        description: 'Creates a user via admin API with email, password, and metadata.',
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  email: { type: 'string', example: 'newuser@example.com' },
+                  password: { type: 'string', example: 'StrongPassword123!' },
+                  phone: { type: 'string', example: '+1234567890' },
+                  email_confirm: { type: 'boolean', example: true },
+                  phone_confirm: { type: 'boolean', example: true },
+                  user_metadata: { type: 'object', example: { display_name: 'John Doe' } },
+                  app_metadata: { type: 'object', example: { roles: ['admin'], is_admin: true } },
+                },
+                required: ['email', 'password'],
+              },
+            },
+          },
+        },
+        responses: { 201: { description: 'User created successfully' } },
       },
     },
     '/auth/admin/users/{id}': {
       get: {
         tags: ['admin-auth'],
         summary: 'Admin: Get user by ID',
+        security: [{ bearerAuth: [] }],
         parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
         responses: { 200: { description: 'User details' } },
       },
       put: {
         tags: ['admin-auth'],
         summary: 'Admin: Update user by ID',
+        security: [{ bearerAuth: [] }],
         parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
-        responses: { 200: { description: 'User updated' } },
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  email: { type: 'string', example: 'updated@example.com' },
+                  password: { type: 'string', example: 'NewPassword123!' },
+                  phone: { type: 'string', example: '+9876543210' },
+                  email_confirm: { type: 'boolean', example: true },
+                  user_metadata: { type: 'object', example: { display_name: 'Jane Doe' } },
+                  app_metadata: { type: 'object', example: { roles: ['admin'] } },
+                  ban_duration: { type: 'string', example: '24h' },
+                },
+              },
+            },
+          },
+        },
+        responses: { 200: { description: 'User updated successfully' } },
       },
       delete: {
         tags: ['admin-auth'],
         summary: 'Admin: Delete user by ID',
+        security: [{ bearerAuth: [] }],
         parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
-        responses: { 200: { description: 'User deleted' } },
+        responses: { 200: { description: 'User deleted successfully' } },
       },
     },
     '/profiles': {
