@@ -187,10 +187,9 @@ async function deleteProfile(req, res, next) {
 
 async function listProfiles(req, res, next) {
   try {
-    const { search, field_name, field_value, skip, limit } = req.query;
+    const { field_name, field_value, skip, limit } = req.query;
 
     const options = {
-      search: search || '',
       field_name: field_name || '',
       field_value: field_value || '',
       skip: skip !== undefined ? parseInt(skip, 10) : 0,

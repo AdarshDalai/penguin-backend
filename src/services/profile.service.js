@@ -97,7 +97,7 @@ async function deleteProfileById(id) {
 }
 
 async function listProfiles(options = {}) {
-  const { search, field_name, field_value, skip = 0, limit = 50 } = options;
+  const { field_name, field_value, skip = 0, limit = 50 } = options;
   const whereClauses = [];
   const queryParams = [];
 
@@ -114,18 +114,6 @@ async function listProfiles(options = {}) {
     queryParams.push(`%${field_value}%`);
     const paramIdx = queryParams.length;
     whereClauses.push(`${field_name} ILIKE $${paramIdx}`);
-  }
-
-  if (search && search.trim() !== '') {
-    queryParams.push(`%${search.trim()}%`);
-    const paramIdx = queryParams.length;
-    whereClauses.push(`(
-      handle ILIKE $${paramIdx} OR
-      display_name ILIKE $${paramIdx} OR
-      email ILIKE $${paramIdx} OR
-      phone ILIKE $${paramIdx} OR
-      bio ILIKE $${paramIdx}
-    )`);
   }
 
   const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';

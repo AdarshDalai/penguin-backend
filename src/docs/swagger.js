@@ -357,10 +357,9 @@ const openapiSpec = {
       get: {
         tags: ['profile'],
         summary: 'List user profiles',
-        description: 'Lists user profiles with optional search filtering across display_name, email, phone, or bio, and pagination via skip and limit.',
+        description: 'Lists user profiles with optional field filtering via field_name and field_value, and pagination via skip and limit.',
         security: [{ bearerAuth: [] }],
         parameters: [
-          { name: 'search', in: 'query', required: false, schema: { type: 'string' }, description: 'Search term for handle, display_name, email, phone, or bio' },
           { name: 'field_name', in: 'query', required: false, schema: { type: 'string', enum: ['id', 'handle', 'email', 'display_name', 'avatar_url', 'phone', 'bio', 'website'] }, description: 'Specific profile column field name to filter by' },
           { name: 'field_value', in: 'query', required: false, schema: { type: 'string' }, description: 'Value to filter the specified field_name by' },
           { name: 'skip', in: 'query', required: false, schema: { type: 'integer', default: 0 }, description: 'Number of records to skip (offset)' },
