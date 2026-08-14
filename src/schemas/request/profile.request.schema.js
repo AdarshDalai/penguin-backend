@@ -3,9 +3,12 @@
  */
 
 function validateCreateProfileRequest(body) {
-  const { id } = body || {};
+  const { id, handle } = body || {};
   if (!id) {
     return { valid: false, message: 'profile id (user id) is required' };
+  }
+  if (!handle || handle.trim() === '') {
+    return { valid: false, message: 'profile handle is required' };
   }
   return { valid: true };
 }

@@ -16,7 +16,7 @@ async function createProfile(req, res, next) {
       return res.status(HTTP_STATUS.BAD_REQUEST).json(errorResponse(validation.message));
     }
 
-    const { id, email, display_name, avatar_url, phone, bio, website } = req.body;
+    const { id, handle, email, display_name, avatar_url, phone, bio, website } = req.body;
 
     // Verify user exists in auth.users
     const { data: authUserData, error: authError } = await authService.adminGetUserById(id);
@@ -28,6 +28,7 @@ async function createProfile(req, res, next) {
 
     const payload = {
       id,
+      handle: handle.trim(),
       email: email || authUserData.user.email,
       display_name,
       avatar_url,
@@ -39,6 +40,15 @@ async function createProfile(req, res, next) {
 
     const { data, error } = await profileService.insertProfile(payload);
     if (error) {
+      if (error.code === '23505') {
+        if (error.detail && error.detail.includes('handle')) {
+          return res.status(HTTP_STATUS.BAD_REQUEST).json(errorResponse('handle already exists'));
+        }
+        if (error.detail && error.detail.includes('email')) {
+          return res.status(HTTP_STATUS.BAD_REQUEST).json(errorResponse('email already exists'));
+        }
+        return res.status(HTTP_STATUS.BAD_REQUEST).json(errorResponse('duplicate key error: handle or email already exists'));
+      }
       if (error.code === '23503') {
         return res
           .status(HTTP_STATUS.NOT_FOUND)
@@ -97,9 +107,22 @@ async function upsertProfile(req, res, next) {
         .json(errorResponse(MESSAGES.PROFILE.AUTH_USER_NOT_FOUND));
     }
 
-    const { email, display_name, avatar_url, phone, bio, website } = req.body || {};
+    const { handle, email, display_name, avatar_url, phone, bio, website } = req.body || {};
+    
+    // Fetch existing profile to retain handle if not supplied
+    let existingHandle = handle;
+    if (!existingHandle) {
+      const { data: existingProfile } = await profileService.getProfileById(id);
+      if (existingProfile) {
+        existingHandle = existingProfile.handle;
+      } else {
+        return res.status(HTTP_STATUS.BAD_REQUEST).json(errorResponse('profile handle is required for new profile creation'));
+      }
+    }
+
     const payload = {
       id,
+      handle: existingHandle.trim(),
       email: email || authUserData.user.email,
       display_name,
       avatar_url,
@@ -111,6 +134,15 @@ async function upsertProfile(req, res, next) {
 
     const { data, error } = await profileService.upsertProfileById(payload);
     if (error) {
+      if (error.code === '23505') {
+        if (error.detail && error.detail.includes('handle')) {
+          return res.status(HTTP_STATUS.BAD_REQUEST).json(errorResponse('handle already exists'));
+        }
+        if (error.detail && error.detail.includes('email')) {
+          return res.status(HTTP_STATUS.BAD_REQUEST).json(errorResponse('email already exists'));
+        }
+        return res.status(HTTP_STATUS.BAD_REQUEST).json(errorResponse('duplicate key error: handle or email already exists'));
+      }
       if (error.code === '23503') {
         return res
           .status(HTTP_STATUS.NOT_FOUND)
@@ -155,10 +187,12 @@ async function deleteProfile(req, res, next) {
 
 async function listProfiles(req, res, next) {
   try {
-    const { search, skip, limit } = req.query;
+    const { search, field_name, field_value, skip, limit } = req.query;
 
     const options = {
       search: search || '',
+      field_name: field_name || '',
+      field_value: field_value || '',
       skip: skip !== undefined ? parseInt(skip, 10) : 0,
       limit: limit !== undefined ? parseInt(limit, 10) : 50,
     };
@@ -194,10 +228,52 @@ async function listProfiles(req, res, next) {
   }
 }
 
+async function searchHandleRegex(req, res, next) {
+  try {
+    const { regex_pattern, skip, limit } = req.query;
+
+    const options = {
+      pattern: regex_pattern || '',
+      skip: skip !== undefined ? parseInt(skip, 10) : 0,
+      limit: limit !== undefined ? parseInt(limit, 10) : 50,
+    };
+
+    if (isNaN(options.skip) || options.skip < 0) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json(errorResponse('skip must be a non-negative integer'));
+    }
+
+    if (isNaN(options.limit) || options.limit <= 0) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json(errorResponse('limit must be a positive integer'));
+    }
+
+    const { data, error } = await profileService.searchProfilesByHandleRegex(options);
+
+    if (error) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json(errorResponse(error.message));
+    }
+
+    const formattedData = {
+      profiles: data.profiles.map(formatProfileResponse),
+      pagination: {
+        total: data.total,
+        skip: data.skip,
+        limit: data.limit,
+      },
+    };
+
+    return res
+      .status(HTTP_STATUS.OK)
+      .json(successResponse(MESSAGES.PROFILE.LISTED, formattedData));
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   createProfile,
   getProfile,
   listProfiles,
+  searchHandleRegex,
   upsertProfile,
   deleteProfile,
 };

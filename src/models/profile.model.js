@@ -1,4 +1,4 @@
-const { pgTable, pgSchema, uuid, text, timestamp, pgPolicy } = require('drizzle-orm/pg-core');
+const { pgTable, pgSchema, uuid, text, timestamp, primaryKey, unique, pgPolicy } = require('drizzle-orm/pg-core');
 const { sql } = require('drizzle-orm');
 
 // External auth.users table definition for foreign key reference
@@ -11,9 +11,9 @@ const profiles = pgTable(
   'profiles',
   {
     id: uuid('id')
-      .primaryKey()
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
+    handle: text('handle').notNull(),
     email: text('email'),
     display_name: text('display_name'),
     avatar_url: text('avatar_url'),
@@ -24,6 +24,9 @@ const profiles = pgTable(
     updated_at: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
   },
   (table) => [
+    primaryKey({ columns: [table.id, table.handle] }),
+    unique('profiles_handle_unique').on(table.handle),
+    unique('profiles_email_unique').on(table.email),
     pgPolicy('Public profiles are viewable by everyone', {
       for: 'select',
       to: 'public',

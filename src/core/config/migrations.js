@@ -1,5 +1,6 @@
 const { drizzle } = require('drizzle-orm/node-postgres');
 const { migrate } = require('drizzle-orm/node-postgres/migrator');
+const { execSync } = require('child_process');
 const path = require('path');
 const pool = require('./postgres');
 
@@ -8,7 +9,14 @@ async function runMigrations() {
   const migrationsFolder = path.resolve(__dirname, '../../../migrations');
 
   try {
-    console.log('[penguin] Running database migrations...');
+    console.log('[penguin] Auto-generating schema revisions via Drizzle-Kit...');
+    try {
+      execSync('npx drizzle-kit generate', { stdio: 'inherit' });
+    } catch (genErr) {
+      console.warn('[penguin] Warning: Drizzle-Kit auto-generation skipped or completed with notices:', genErr.message);
+    }
+
+    console.log('[penguin] Applying database migrations...');
     await migrate(db, { migrationsFolder });
     console.log('[penguin] Database migrations executed successfully');
   } catch (err) {

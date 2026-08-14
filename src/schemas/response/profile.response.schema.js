@@ -6,6 +6,7 @@ function formatProfileResponse(profile) {
   if (!profile) return null;
   return {
     id: profile.id,
+    handle: profile.handle || null,
     email: profile.email || null,
     display_name: profile.display_name || null,
     avatar_url: profile.avatar_url || null,

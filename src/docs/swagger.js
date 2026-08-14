@@ -337,6 +337,22 @@ const openapiSpec = {
         responses: { 200: { description: 'User deleted successfully' } },
       },
     },
+    '/profiles/search/handle': {
+      get: {
+        tags: ['profile'],
+        summary: 'Public: Regex search on user handle',
+        description: 'Public endpoint allowing regex pattern search on user handles with pagination via skip and limit.',
+        parameters: [
+          { name: 'regex_pattern', in: 'query', required: false, schema: { type: 'string', example: '^adar' }, description: 'Regular expression pattern to filter user handles (case-insensitive)' },
+          { name: 'skip', in: 'query', required: false, schema: { type: 'integer', default: 0 }, description: 'Number of records to skip' },
+          { name: 'limit', in: 'query', required: false, schema: { type: 'integer', default: 50 }, description: 'Maximum number of records to return' },
+        ],
+        responses: {
+          200: { description: 'Profiles retrieved matching handle regex' },
+          400: { description: 'Invalid query or regex parameters' },
+        },
+      },
+    },
     '/profiles': {
       get: {
         tags: ['profile'],
@@ -344,7 +360,9 @@ const openapiSpec = {
         description: 'Lists user profiles with optional search filtering across display_name, email, phone, or bio, and pagination via skip and limit.',
         security: [{ bearerAuth: [] }],
         parameters: [
-          { name: 'search', in: 'query', required: false, schema: { type: 'string' }, description: 'Search term for name, email, phone, or bio' },
+          { name: 'search', in: 'query', required: false, schema: { type: 'string' }, description: 'Search term for handle, display_name, email, phone, or bio' },
+          { name: 'field_name', in: 'query', required: false, schema: { type: 'string', enum: ['id', 'handle', 'email', 'display_name', 'avatar_url', 'phone', 'bio', 'website'] }, description: 'Specific profile column field name to filter by' },
+          { name: 'field_value', in: 'query', required: false, schema: { type: 'string' }, description: 'Value to filter the specified field_name by' },
           { name: 'skip', in: 'query', required: false, schema: { type: 'integer', default: 0 }, description: 'Number of records to skip (offset)' },
           { name: 'limit', in: 'query', required: false, schema: { type: 'integer', default: 50 }, description: 'Maximum number of records to return' },
         ],
@@ -458,6 +476,7 @@ const openapiSpec = {
         type: 'object',
         properties: {
           id: { type: 'string', example: 'd3b07384-d113-46a8-a534-7117c4b008d7' },
+          handle: { type: 'string', example: 'adarsh_dalai' },
           email: { type: 'string', example: 'user@example.com' },
           display_name: { type: 'string', example: 'Adarsh Dalai' },
           avatar_url: { type: 'string', example: 'https://example.com/avatar.png' },
@@ -465,6 +484,7 @@ const openapiSpec = {
           bio: { type: 'string', example: 'Software engineer' },
           website: { type: 'string', example: 'https://example.com' },
         },
+        required: ['id', 'handle'],
       },
     },
     securitySchemes: {
