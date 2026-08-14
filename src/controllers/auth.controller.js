@@ -287,19 +287,44 @@ async function reauthenticate(req, res, next) {
 // Admin Controller Functions
 async function adminListUsers(req, res, next) {
   try {
-    const { page, perPage } = req.query;
+    const { page, perPage, skip, limit } = req.query;
     const options = {};
-    if (page) options.page = parseInt(page, 10);
-    if (perPage) options.perPage = parseInt(perPage, 10);
+
+    let currentSkip = 0;
+    let currentLimit = 50;
+
+    if (skip !== undefined || limit !== undefined) {
+      currentSkip = skip !== undefined ? parseInt(skip, 10) : 0;
+      currentLimit = limit !== undefined ? parseInt(limit, 10) : 50;
+      options.page = Math.floor(currentSkip / currentLimit) + 1;
+      options.perPage = currentLimit;
+    } else {
+      if (page) options.page = parseInt(page, 10);
+      if (perPage) options.perPage = parseInt(perPage, 10);
+      currentLimit = options.perPage || 50;
+      currentSkip = ((options.page || 1) - 1) * currentLimit;
+    }
 
     const { data, error } = await authService.adminListUsers(options);
     if (error) {
       return res.status(error.status || HTTP_STATUS.BAD_REQUEST).json(errorResponse(error.message));
     }
 
+    const users = data?.users || (Array.isArray(data) ? data : []);
+    const total = data?.total || users.length;
+
+    const formattedData = {
+      users,
+      pagination: {
+        total,
+        skip: currentSkip,
+        limit: currentLimit,
+      },
+    };
+
     return res
       .status(HTTP_STATUS.OK)
-      .json(successResponse(MESSAGES.AUTH.ADMIN_USER_LISTED, data));
+      .json(successResponse(MESSAGES.AUTH.ADMIN_USER_LISTED, formattedData));
   } catch (err) {
     next(err);
   }

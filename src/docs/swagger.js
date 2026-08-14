@@ -260,8 +260,10 @@ const openapiSpec = {
         description: 'Lists all registered users with pagination options (page, perPage).',
         security: [{ bearerAuth: [] }],
         parameters: [
-          { name: 'page', in: 'query', required: false, schema: { type: 'integer', default: 1 }, description: 'Page number' },
-          { name: 'perPage', in: 'query', required: false, schema: { type: 'integer', default: 50 }, description: 'Number of items per page' },
+          { name: 'skip', in: 'query', required: false, schema: { type: 'integer', default: 0 }, description: 'Number of records to skip' },
+          { name: 'limit', in: 'query', required: false, schema: { type: 'integer', default: 50 }, description: 'Number of records to return' },
+          { name: 'page', in: 'query', required: false, schema: { type: 'integer', default: 1 }, description: 'Page number (alternative)' },
+          { name: 'perPage', in: 'query', required: false, schema: { type: 'integer', default: 50 }, description: 'Items per page (alternative)' },
         ],
         responses: { 200: { description: 'List of users' } },
       },
@@ -336,10 +338,26 @@ const openapiSpec = {
       },
     },
     '/profiles': {
+      get: {
+        tags: ['profile'],
+        summary: 'List user profiles',
+        description: 'Lists user profiles with optional search filtering across display_name, email, phone, or bio, and pagination via skip and limit.',
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          { name: 'search', in: 'query', required: false, schema: { type: 'string' }, description: 'Search term for name, email, phone, or bio' },
+          { name: 'skip', in: 'query', required: false, schema: { type: 'integer', default: 0 }, description: 'Number of records to skip (offset)' },
+          { name: 'limit', in: 'query', required: false, schema: { type: 'integer', default: 50 }, description: 'Maximum number of records to return' },
+        ],
+        responses: {
+          200: { description: 'Profiles retrieved successfully' },
+          400: { description: 'Invalid query parameters' },
+        },
+      },
       post: {
         tags: ['profile'],
         summary: 'Create user profile',
         description: 'Creates a user profile in public.profiles.',
+        security: [{ bearerAuth: [] }],
         requestBody: {
           required: true,
           content: {

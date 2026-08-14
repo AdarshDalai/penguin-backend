@@ -153,9 +153,51 @@ async function deleteProfile(req, res, next) {
   }
 }
 
+async function listProfiles(req, res, next) {
+  try {
+    const { search, skip, limit } = req.query;
+
+    const options = {
+      search: search || '',
+      skip: skip !== undefined ? parseInt(skip, 10) : 0,
+      limit: limit !== undefined ? parseInt(limit, 10) : 50,
+    };
+
+    if (isNaN(options.skip) || options.skip < 0) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json(errorResponse('skip must be a non-negative integer'));
+    }
+
+    if (isNaN(options.limit) || options.limit <= 0) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json(errorResponse('limit must be a positive integer'));
+    }
+
+    const { data, error } = await profileService.listProfiles(options);
+
+    if (error) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json(errorResponse(error.message));
+    }
+
+    const formattedData = {
+      profiles: data.profiles.map(formatProfileResponse),
+      pagination: {
+        total: data.total,
+        skip: data.skip,
+        limit: data.limit,
+      },
+    };
+
+    return res
+      .status(HTTP_STATUS.OK)
+      .json(successResponse(MESSAGES.PROFILE.LISTED, formattedData));
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   createProfile,
   getProfile,
+  listProfiles,
   upsertProfile,
   deleteProfile,
 };

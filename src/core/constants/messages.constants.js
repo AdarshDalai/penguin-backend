@@ -28,6 +28,7 @@ const MESSAGES = {
   PROFILE: {
     CREATED: 'profile created successfully',
     FETCHED: 'profile fetched successfully',
+    LISTED: 'profiles listed successfully',
     UPDATED: 'profile updated successfully',
     DELETED: 'profile deleted successfully',
     NOT_FOUND: 'profile not found',

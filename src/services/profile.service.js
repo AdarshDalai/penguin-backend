@@ -94,9 +94,66 @@ async function deleteProfileById(id) {
   }
 }
 
+async function listProfiles(options = {}) {
+  const { search, skip = 0, limit = 50 } = options;
+  const whereClauses = [];
+  const queryParams = [];
+
+  if (search && search.trim() !== '') {
+    queryParams.push(`%${search.trim()}%`);
+    const paramIdx = queryParams.length;
+    whereClauses.push(`(
+      display_name ILIKE $${paramIdx} OR
+      email ILIKE $${paramIdx} OR
+      phone ILIKE $${paramIdx} OR
+      bio ILIKE $${paramIdx}
+    )`);
+  }
+
+  const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
+
+  // Get total count matching search criteria
+  const countQuery = `SELECT COUNT(*) AS total FROM public.profiles ${whereSql};`;
+  
+  // Data query with offset/limit (skip/limit)
+  const dataQueryParams = [...queryParams];
+  dataQueryParams.push(parseInt(limit, 10));
+  const limitIdx = dataQueryParams.length;
+  dataQueryParams.push(parseInt(skip, 10));
+  const skipIdx = dataQueryParams.length;
+
+  const dataQuery = `
+    SELECT id, email, display_name, avatar_url, phone, bio, website, created_at, updated_at
+    FROM public.profiles
+    ${whereSql}
+    ORDER BY created_at DESC
+    LIMIT $${limitIdx} OFFSET $${skipIdx};
+  `;
+
+  try {
+    const countRes = await pool.query(countQuery, queryParams);
+    const total = parseInt(countRes.rows[0].total, 10);
+
+    const dataRes = await pool.query(dataQuery, dataQueryParams);
+
+    return {
+      data: {
+        profiles: dataRes.rows,
+        total,
+        skip: parseInt(skip, 10),
+        limit: parseInt(limit, 10),
+      },
+      error: null,
+    };
+  } catch (error) {
+    return { data: null, error };
+  }
+}
+
 module.exports = {
   insertProfile,
   getProfileById,
+  listProfiles,
   upsertProfileById,
   deleteProfileById,
 };

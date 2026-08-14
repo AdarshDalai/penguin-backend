@@ -6,6 +6,7 @@ const { authenticateToken } = require('../middleware/auth.middleware');
 router.use(authenticateToken);
 
 router.post('/profiles', profileController.createProfile);
+router.get('/profiles', profileController.listProfiles);
 router.get('/profiles/:id', profileController.getProfile);
 router.put('/profiles/:id', profileController.upsertProfile);
 router.patch('/profiles/:id', profileController.upsertProfile);
