@@ -4,6 +4,13 @@ This rule defines mandatory architecture guidelines, API response formatting, da
 
 ---
 
+## 0. API Versioning & Route Prefixing Standard
+
+- All business feature endpoints (`auth`, `profile`, `storage`, `admin`) MUST be mounted under the `/api/v1` base route prefix in [`src/app.js`](file:///Users/adarshkumardalai/Cloudsbay/penguin-backend/src/app.js).
+- Unversioned system endpoints (`/health`, `/docs`, `/openapi.json`) remain mounted at root.
+
+---
+
 ## 1. Database Migrations Workflow (Drizzle ORM)
 
 - **Model Definition**: All database schemas MUST be defined in [`src/models/*.model.js`](file:///Users/adarshkumardalai/Cloudsbay/penguin-backend/src/models/*.model.js) using Drizzle ORM primitives (`pgTable`, `uuid`, `text`, `timestamp`, `primaryKey`, `unique`, `pgPolicy`).

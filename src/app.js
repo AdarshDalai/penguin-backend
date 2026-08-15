@@ -35,10 +35,13 @@ app.get('/health', (req, res) => {
 // Swagger UI route
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(openapiSpec));
 
-// Register router buckets
-app.use('/', authRoutes);
-app.use('/', profileRoutes);
-app.use('/', storageRoutes);
+// Register router buckets under /api/v1
+const apiV1Router = express.Router();
+apiV1Router.use('/', authRoutes);
+apiV1Router.use('/', profileRoutes);
+apiV1Router.use('/', storageRoutes);
+
+app.use('/api/v1', apiV1Router);
 
 // Fallback 404 handler
 app.use((req, res) => {
